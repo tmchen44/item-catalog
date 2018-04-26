@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+	<nav class="nav-bar">
+		{% block nav %}
+		{% if user %}
+		    {% include 'header_private.html' %}
+		{% else %}
+		    {% include 'header_public.html' %}
+		{% endif %}
+		{% endblock nav %}
+	</nav>
+	<div class="content-box">
+		{% block content %}
+		{% endblock content %}
+	</div>
+</body>
+</html>

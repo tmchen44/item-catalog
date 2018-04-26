@@ -1,0 +1,68 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div class = 'flash'>
+	      {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+        <li> <strong> {{ message }} </strong> </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+{% endwith %}
+</div>
+
+<div class="categories">
+	<h2>Categories</h2>
+	<ul>
+	{% for category in categories %}
+		<li>
+			<a href = "url_for('showCategory', restaurant_id = restaurant.id)">
+				{{category.name}}
+			</a>
+		</li>
+	{% endfor %}
+	</ul>
+</div>
+
+<div class="vertical"></div>
+
+<div class="latest-items">
+    <div class="title-add">
+		{% block subcontent_header %}
+		{% endblock subcontent_header %}
+        {% if user %}
+        <button id="add-button" class="blue-button" onclick="document.getElementById('edit-instrument').style.display='block'">+ Add</button>
+        {% endif %}
+    </div>
+	<ul>
+	{% block subcontent_list %}
+	{% endblock subcontent_list %}
+	</ul>
+</div>
+
+{% if user %}
+<!-- Add Modal -->
+<div id="edit-instrument" class="modal">
+	<form class="modal-content animate" action="/action_page.php" method="post">
+		<h2>Add Instrument</h2>
+		<label for="name"><p>Name</p></label>
+		<input class="user-input" type="text" placeholder="Instrument name" name="name" required>
+
+		<label for="description"><p>Description</p></label>
+		<textarea class="user-input" name="description" placeholder="Add a description here." rows="5" required></textarea>
+
+		<label for="category_name"><p>Category</p></label>
+		<select class="user-input" name="category_name">
+			{% block select_category %}
+			{% endblock select_category %}
+		</select>
+		<div class="button-group">
+			<button type="submit" class="blue-button">Edit</button>
+			<button type="button" class="gray-button" onclick="document.getElementById('edit-instrument').style.display='none'">Cancel</button>
+		</div>
+	</form>
+</div>
+{% endif %}
+{% endblock content %}

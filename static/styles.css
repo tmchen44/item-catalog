@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+/*
+ *  General properties
+ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #d1d1d1;
+}
+
+ul {
+    list-style-type: none;
+    margin: 5px 0 0 0.5em;
+    padding: 0;
+}
+
+li {
+    margin: 0.5em 0 0.5em 0;
+}
+
+li a {
+    text-decoration: none;
+    color: #1b13af;
+    font-weight: 600;
+}
+
+li a:hover {
+    text-decoration: underline;
+}
+
+/*
+ *  Navigational Bar
+ */
+
+.nav-bar {
+    width: 100%;
+    background-color: #2268d8;
+}
+
+.nav-content {
+    max-width: 800px;
+    margin: 0.5em auto 0.5em auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-title {
+    font-size: 1.75em;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    margin: 0.5em 0 0.5em 0;
+}
+
+.nav-button {
+    font-size: 1em;
+    padding: 0.5em 1em 0.65em 1em;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.login {
+    background-color: green;
+}
+
+.login:hover {
+    background-color: #1ea025;
+}
+
+.logout {
+    background-color: red;
+}
+
+.logout:hover {
+    background-color: #ba2828;
+}
+
+/*
+ *  Main content
+ */
+
+.content-box {
+    max-width: 800px;
+    margin: 1em auto auto auto;
+    padding: 20px;
+    background-color: white;
+    display: flex;
+    border-radius: 8px;
+}
+
+.content-box h2 {
+    font-size: 1.55em;
+    font-weight: 600;
+    margin: 0;
+}
+
+.categories {
+    height: 100%;
+    vertical-align: top;
+}
+
+.vertical {
+    min-height: 100%;
+    width: 1px;
+    background-color: #ddd;
+    margin: 0 5% 0 5%;
+    align-content: center;
+}
+
+.title-add {
+    display: flex;
+    align-items: middle;
+}
+
+.latest-items {
+    height: 100%;
+    vertical-align: top;
+}
+
+.latest-items span {
+    color: #5a5a5a;
+    margin-left: 0.25em;
+}
+
+.category-items {
+    height: 100%;
+    vertical-align: top;
+}
+
+.description p {
+    margin: 0.5em 0 1.25em 0;
+}
+
+.description .red-button {
+    position: relative;
+    left: 0.5em;
+}
+
+.content-box button {
+    font-size: 1em;
+    background-color: white;
+    border-radius: 8px;
+    border-width: 2px;
+    border-style: solid;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 0.5em 1em 0.5em 1em;
+}
+
+#add-button {
+    border-color: #00a1ff;
+    color: #00a1ff;
+    padding: 0.3em 1em 0.3em 0.8em;
+    position: relative;
+    left: 1em;
+}
+
+.blue-button {
+    border-color: #00a1ff;
+    color: #00a1ff;
+}
+
+.blue-button:hover {
+    background-color: #00a1ff;
+    color: white;
+}
+
+.red-button {
+    border-color: #ff1111;
+    color: #ff1111;
+    margin: 0 0 0 0;
+}
+
+.red-button:hover {
+    background-color: #ff1111;
+    color: white;
+}
+
+.gray-button {
+    border-color: #999;
+    color: #999;
+}
+
+.gray-button:hover {
+    background-color: #999;
+    color: white;
+}
+
+/*
+ *  Modals
+ */
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+/* Modal Content */
+.modal-content {
+    display: block;
+    background-color: #fefefe;
+    border: 1px solid #888;
+    padding: 30px;
+    max-width: 500px;
+    margin: auto;
+}
+
+.modal-content .gray-button {
+    position: relative;
+    left: 0.75em;
+}
+
+#edit-instrument .user-input {
+    width: 100%;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    padding: 0.25em;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+}
+
+#edit-instrument h2 {
+    margin: 0 0 0.5em 0;
+}
+
+#edit-instrument p {
+    margin: 0.75em 0 0.35em 0;
+}
+
+#edit-instrument .button-group {
+    margin: 1.25em 0 0 0;
+}
+
+#delete-instrument h3 {
+    margin: 0 0 2em 0;
+}
+
+/* Add Zoom Animation */
+.animate {
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s
+}
+
+@-webkit-keyframes animatezoom {
+    from {-webkit-transform: scale(0)}
+    to {-webkit-transform: scale(1)}
+}
+
+@keyframes animatezoom {
+    from {transform: scale(0)}
+    to {transform: scale(1)}
+}

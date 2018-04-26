@@ -1,0 +1,17 @@
+{% extends "catalog.html" %}
+
+{% block subcontent_header %}
+<h2>{{category_name}}</h2>
+{% endblock subcontent_header %}
+
+{% block subcontent_list %}
+{% for instrument in instruments %}
+    <li>
+        <a href = "url_for('showInstrument', instrument_id = instrument.id)">{{instrument.name}}</a>
+    </li>
+{% endfor %}
+{% endblock subcontent_list %}
+
+{% block select_category %}
+    <option value="{{category}}" selected>{{category_name}}</option>
+{% endblock select_category %}

@@ -1,0 +1,62 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div class = 'flash'>
+	      {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+        <li> <strong> {{ message }} </strong> </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+{% endwith %}
+</div>
+
+<div class="description">
+	<h2>{{instrument.name}}</h2>
+	<p>{{instrument.description}}</p>
+	{% if user %}
+	<button class="blue-button" onclick="document.getElementById('edit-instrument').style.display='block'">Edit</button>
+	<button class="red-button" onclick="document.getElementById('delete-instrument').style.display='block'">Delete</button>
+	{% endif %}
+</div>
+
+{% if user %}
+<!-- Edit Modal -->
+<div id="edit-instrument" class="modal">
+	<form class="modal-content animate" action="/action_page.php" method="post">
+		<h2>Edit Instrument</h2>
+		<label for="name"><p>Name</p></label>
+		<input class="user-input" type="text" placeholder="Instrument name" name="name" required>
+
+		<label for="description"><p>Description</p></label>
+		<textarea class="user-input" name="description" rows="5" required>{{instrument.description}}</textarea>
+
+		<label for="category_name"><p>Category</p></label>
+		<select class="user-input" name="category_name">
+		{% for category in categories %}
+			{% if category.name == instrument.category_name %}
+			<option value="{{category}}" selected>{{category.name}}</option>
+			{% else %}
+			<option value="{{category}}">{{category.name}}</option>
+			{% endif %}
+		{% endfor %}
+		</select>
+		<div class="button-group">
+			<button type="submit" class="blue-button">Edit</button>
+			<button type="button" class="gray-button" onclick="document.getElementById('edit-instrument').style.display='none'">Cancel</button>
+		</div>
+	</form>
+</div>
+
+<!-- Delete Modal -->
+<div id="delete-instrument" class="modal">
+	<form class="modal-content animate" action="/action_page.php" method="post">
+		<h3>Are you sure you want to delete {{instrument.name}}?</h3>
+		<button type="submit" class="red-button">Delete</button>
+		<button type="button" class="gray-button" onclick="document.getElementById('delete-instrument').style.display='none'">Cancel</button>
+	</form>
+</div>
+{% endif %}
+{% endblock content %}
