@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Instrument, User, database_info
 import sqlalchemy.engine.url
+from sqlalchemy.exc import IntegrityError
 
 # Import Flask
 from flask import (Flask, render_template, request, redirect, url_for, flash,
@@ -57,8 +58,11 @@ def newInstrument():
                          user_id=1)
     session.add(newItem)
     # handle database exception for bad category, instrument name
-    session.commit()
-    flash("Instrument Added")
+    # try:
+    #     session.commit()
+    # except IntegrityError:
+
+    flash('Instrument Added')
     if request.form['origin'] == 'latest':
         return redirect(url_for('showLatest'))
     else:
@@ -80,7 +84,7 @@ def editInstrument(category_name, instrument_name):
     session.add(editItem)
     # handle database exception for bad category, instrument name
     session.commit()
-    flash("Instrument Edited")
+    flash('Instrument Edited')
     return redirect(url_for('showCategory', category_name=category_name))
 
 def deleteInstrument(category_name, instrument_name):
@@ -88,7 +92,7 @@ def deleteInstrument(category_name, instrument_name):
                                         category_name=category_name).one()
     session.delete(item)
     session.commit()
-    flash("Instrument Deleted")
+    flash('Instrument Deleted')
     return redirect(url_for('showCategory', category_name=category_name))
 
 # @app.route('/restaurants/JSON/')

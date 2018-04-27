@@ -35,6 +35,18 @@ li a:hover {
     text-decoration: underline;
 }
 
+/* Flash Messages */
+.flash {
+    position: fixed;
+    left: 50%;
+    top: 26px;
+    transform: translateX(-50%);
+    z-index: 1;
+    background-color: #ffdd00;
+    padding: 0.25em 1em 0.25em 1em;
+    border-radius: 6px;
+}
+
 /*
  *  Navigational Bar
  */
@@ -92,7 +104,7 @@ li a:hover {
 
 .content-box {
     max-width: 800px;
-    margin: 1em auto auto auto;
+    margin: 1.5em auto auto auto;
     padding: 20px;
     background-color: white;
     display: flex;

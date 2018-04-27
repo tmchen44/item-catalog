@@ -3,7 +3,13 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+	<link rel=stylesheet type=text/css href="{{url_for('static', filename='styles.css')}}">
+	<script src="{{url_for('static', filename='jquery-3.3.1.min.js')}}"></script>
+	<script>
+		$(document).ready( function() {
+			$('.flash').delay(3500).fadeOut(1000);
+		});
+	</script>
 </head>
 <body>
 	<nav class="nav-bar">
@@ -15,17 +21,11 @@
 		{% endif %}
 		{% endblock nav %}
 	</nav>
-	<div class = 'flash'>
-		      {% with messages = get_flashed_messages() %}
-	  {% if messages %}
-	    <ul>
-	    {% for message in messages %}
-	        <li> <strong> {{ message }} </strong> </li>
-	    {% endfor %}
-	    </ul>
-	    {% endif %}
+	{% with messages = get_flashed_messages(category_filter=['message']) %}
+	{% if messages %}
+	<span class='flash'><strong>{{messages[0]}}</strong></span>
+    {% endif %}
 	{% endwith %}
-	</div>
 	<div class="content-box">
 		{% block content %}
 		{% endblock content %}
