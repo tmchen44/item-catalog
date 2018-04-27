@@ -7,7 +7,7 @@
 	<script src="{{url_for('static', filename='jquery-3.3.1.min.js')}}"></script>
 	<script>
 		$(document).ready( function() {
-			$('.flash').delay(3500).fadeOut(1000);
+			$('.flash-message').delay(3500).fadeOut(1000);
 		});
 	</script>
 </head>
@@ -21,9 +21,16 @@
 		{% endif %}
 		{% endblock nav %}
 	</nav>
+	<!-- Informational flash messages -->
 	{% with messages = get_flashed_messages(category_filter=['message']) %}
 	{% if messages %}
-	<span class='flash'><strong>{{messages[0]}}</strong></span>
+	<span class='flash-message'><strong>{{messages[0]}}</strong></span>
+    {% endif %}
+	{% endwith %}
+	<!-- Error flash messages -->
+	{% with errors = get_flashed_messages(category_filter=['error']) %}
+	{% if errors %}
+	<p class='flash-error'><strong><span>Error: </span></strong>{{errors[0]}}</p>
     {% endif %}
 	{% endwith %}
 	<div class="content-box">

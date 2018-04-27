@@ -4,6 +4,8 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Instrument, User, database_info
 import sqlalchemy.engine.url
 from sqlalchemy.exc import IntegrityError
+import string
+import random
 
 # Import Flask
 from flask import (Flask, render_template, request, redirect, url_for, flash,
@@ -29,6 +31,7 @@ def showLatest():
                             instruments=latest,
                             user=1)
 
+
 @app.route('/catalog/<category_name>')
 def showCategory(category_name):
     categories = session.query(Category).all()
@@ -40,6 +43,7 @@ def showCategory(category_name):
                             instruments=instruments,
                             user=1)
 
+
 @app.route('/catalog/<category_name>/<instrument_name>')
 def showInstrument(category_name, instrument_name):
     categories = session.query(Category).all()
@@ -50,6 +54,7 @@ def showInstrument(category_name, instrument_name):
                             categories=categories,
                             user=1)
 
+
 @app.route('/catalog', methods=['POST'])
 def newInstrument():
     newItem = Instrument(name=request.form['name'],
@@ -58,15 +63,22 @@ def newInstrument():
                          user_id=1)
     session.add(newItem)
     # handle database exception for bad category, instrument name
-    # try:
-    #     session.commit()
-    # except IntegrityError:
-
-    flash('Instrument Added')
-    if request.form['origin'] == 'latest':
-        return redirect(url_for('showLatest'))
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        message = 'The {} category already has an instrument named {}. \
+                    Please give your instrument a different name.'.format(
+                    request.form['category_name'], request.form['name'])
+        flash(message, 'error')
     else:
-        return redirect(url_for('showCategory', category_name=request.form['category_name']))
+        flash('Instrument Added')
+    finally:
+        if request.form['origin'] == 'latest':
+            return redirect(url_for('showLatest'))
+        else:
+            return redirect(url_for('showCategory', category_name=request.form['category_name']))
+
 
 @app.route('/catalog/<category_name>/<instrument_name>', methods=['POST'])
 def router(category_name, instrument_name):
@@ -74,6 +86,7 @@ def router(category_name, instrument_name):
         return editInstrument(category_name, instrument_name)
     else:
         return deleteInstrument(category_name, instrument_name)
+
 
 def editInstrument(category_name, instrument_name):
     editItem = session.query(Instrument).filter_by(name=instrument_name,
@@ -83,9 +96,22 @@ def editInstrument(category_name, instrument_name):
     editItem.category_name = request.form['category_name']
     session.add(editItem)
     # handle database exception for bad category, instrument name
-    session.commit()
-    flash('Instrument Edited')
-    return redirect(url_for('showCategory', category_name=category_name))
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        flash('The {} category already has an instrument named {}. \
+                Please give your instrument a different name.'.format(
+                request.form['category_name'], request.form['name']), 'error')
+        return redirect(url_for('showInstrument',
+                                category_name=category_name,
+                                instrument_name=instrument_name))
+    else:
+        flash('Instrument Edited')
+        return redirect(url_for('showInstrument',
+                                category_name=request.form['category_name'],
+                                instrument_name=request.form['name']))
+
 
 def deleteInstrument(category_name, instrument_name):
     item = session.query(Instrument).filter_by(name=instrument_name,
@@ -112,6 +138,7 @@ def deleteInstrument(category_name, instrument_name):
 
 
 if __name__ == '__main__':
-    app.secret_key = 'super_secret_key'
+    app.secret_key = ''.join(random.SystemRandom().choice(
+                string.ascii_uppercase + string.digits) for _ in range(64))
     app.debug = True
     app.run(host = '0.0.0.0', port = 5000)
