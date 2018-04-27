@@ -17,12 +17,11 @@ class User(Base):
 
     @property
     def serialize(self):
-       """Return object data in easily serializeable format"""
-       return {
-           'name': self.name,
-           'id': self.id,
-           'email': self.email
-       }
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email
+        }
 
 class Category(Base):
     __tablename__ = 'category'
@@ -32,8 +31,7 @@ class Category(Base):
     @property
     def serialize(self):
         return {
-            'name': self.name,
-            'id': self.id,
+            'name': self.name
         }
 
 class Instrument(Base):
@@ -49,9 +47,10 @@ class Instrument(Base):
     @property
     def serialize(self):
         return {
-            'name': self.name,
             'id': self.id,
-            'description': self.description
+            'name': self.name,
+            'description': self.description,
+            'category': self.category_name
         }
 
 database_info = {

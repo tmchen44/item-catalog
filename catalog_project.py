@@ -121,24 +121,32 @@ def deleteInstrument(category_name, instrument_name):
     flash('Instrument Deleted')
     return redirect(url_for('showCategory', category_name=category_name))
 
-# @app.route('/restaurants/JSON/')
-# def restaurantJSON():
-#     restaurants = session.query(Restaurant).all()
-#     return jsonify(Restaurants=[r.serialize for r in restaurants])
-#
-# @app.route('/restaurant/<int:restaurant_id>/menu/JSON/')
-# def restaurantMenuJSON(restaurant_id):
-#     items = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
-#     return jsonify(MenuItems=[i.serialize for i in items])
-#
-# @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/JSON/')
-# def menuItemJSON(restaurant_id, menu_id):
-#     item = session.query(MenuItem).filter_by(id=menu_id, restaurant_id=restaurant_id).one()
-#     return jsonify(MenuItem=item.serialize)
+
+@app.route('/catalog.json')
+def catalogJSON():
+    instruments = session.query(Instrument).order_by(
+                                Instrument.category_name).all()
+    return jsonify([i.serialize for i in instruments])
+
+
+@app.route('/catalog/<category_name>.json')
+def categoryJSON(category_name):
+    instruments = session.query(Instrument).filter_by(
+                                category_name=category_name).all()
+    return jsonify([i.serialize for i in instruments])
+
+
+@app.route('/catalog/<category_name>/<instrument_name>.json')
+def instrumentJSON(category_name, instrument_name):
+    instrument = session.query(Instrument).filter_by(
+                                        name=instrument_name,
+                                        category_name=category_name).one()
+    return jsonify(instrument.serialize)
 
 
 if __name__ == '__main__':
     app.secret_key = ''.join(random.SystemRandom().choice(
-                string.ascii_uppercase + string.digits) for _ in range(64))
+                string.ascii_uppercase + string.ascii_lowercase +
+                string.digits) for _ in range(64))
     app.debug = True
     app.run(host = '0.0.0.0', port = 5000)
