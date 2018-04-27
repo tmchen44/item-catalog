@@ -5,7 +5,8 @@ from database_setup import Base, Category, Instrument, User, database_info
 import sqlalchemy.engine.url
 
 # Import Flask
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import (Flask, render_template, request, redirect, url_for, flash,
+                   jsonify)
 app = Flask(__name__)
 
 # Connect with database as a session
@@ -30,66 +31,66 @@ def showLatest():
 @app.route('/catalog/<category_name>')
 def showCategory(category_name):
     categories = session.query(Category).all()
-    instruments = session.query(Instrument).filter_by(category_name=category_name).all()
+    instruments = session.query(Instrument).filter_by(
+                                        category_name=category_name).all()
     return render_template('category.html',
                             categories=categories,
                             category_name=category_name,
                             instruments=instruments,
-                            count=len(instruments),
                             user=1)
 
 @app.route('/catalog/<category_name>/<instrument_name>')
 def showInstrument(category_name, instrument_name):
     categories = session.query(Category).all()
     instrument = session.query(Instrument).filter_by(name=instrument_name,
-                                                     category_name=category_name).one()
+                                        category_name=category_name).one()
     return render_template('instrument.html',
                             instrument=instrument,
                             categories=categories,
                             user=1)
 
-# @app.route('/restaurant/<int:restaurant_id>/menu/new', methods=['GET', 'POST'])
-# def newMenuItem(restaurant_id):
-#     if request.method == 'POST':
-#         newItem = MenuItem(name=request.form['name'],
-#                            course=request.form['course'],
-#                            description=request.form['description'],
-#                            price=request.form['price'],
-#                            restaurant_id=restaurant_id)
-#         session.add(newItem)
-#         session.commit()
-#         flash("Menu Item Created")
-#         return redirect(url_for('showMenu', restaurant_id=restaurant_id))
-#     else:
-#         return render_template('newmenuitem.html', restaurant_id=restaurant_id)
-#
-# @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit', methods=['GET', 'POST'])
-# def editMenuItem(restaurant_id, menu_id):
-#     editItem = session.query(MenuItem).filter_by(id=menu_id, restaurant_id=restaurant_id).one()
-#     if request.method == 'POST':
-#         editItem.name = request.form['name']
-#         editItem.course = request.form['course']
-#         editItem.description = request.form['description']
-#         editItem.price = request.form['price']
-#
-#         session.add(editItem)
-#         session.commit()
-#         flash("Menu Item Successfully Edited")
-#         return redirect(url_for('showMenu', restaurant_id=restaurant_id))
-#     else:
-#         return render_template('editmenuitem.html', item=editItem)
-#
-# @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods=['GET', 'POST'])
-# def deleteMenuItem(restaurant_id, menu_id):
-#     item = session.query(MenuItem).filter_by(id=menu_id).one()
-#     if request.method == 'POST':
-#         session.delete(item)
-#         session.commit()
-#         flash("Menu Item Successfully Deleted")
-#         return redirect(url_for('showMenu', restaurant_id=restaurant_id))
-#     else:
-#         return render_template('deletemenuitem.html', item=item)
-#
+@app.route('/catalog', methods=['POST'])
+def newInstrument():
+    newItem = Instrument(name=request.form['name'],
+                         description=request.form['description'],
+                         category_name=request.form['category_name'],
+                         user_id=1)
+    session.add(newItem)
+    # handle database exception for bad category, instrument name
+    session.commit()
+    flash("Instrument Added")
+    if request.form['origin'] == 'latest':
+        return redirect(url_for('showLatest'))
+    else:
+        return redirect(url_for('showCategory', category_name=request.form['category_name']))
+
+@app.route('/catalog/<category_name>/<instrument_name>', methods=['POST'])
+def router(category_name, instrument_name):
+    if request.form['method'] == 'patch':
+        return editInstrument(category_name, instrument_name)
+    else:
+        return deleteInstrument(category_name, instrument_name)
+
+def editInstrument(category_name, instrument_name):
+    editItem = session.query(Instrument).filter_by(name=instrument_name,
+                                        category_name=category_name).one()
+    editItem.name = request.form['name']
+    editItem.description = request.form['description']
+    editItem.category_name = request.form['category_name']
+    session.add(editItem)
+    # handle database exception for bad category, instrument name
+    session.commit()
+    flash("Instrument Edited")
+    return redirect(url_for('showCategory', category_name=category_name))
+
+def deleteInstrument(category_name, instrument_name):
+    item = session.query(Instrument).filter_by(name=instrument_name,
+                                        category_name=category_name).one()
+    session.delete(item)
+    session.commit()
+    flash("Instrument Deleted")
+    return redirect(url_for('showCategory', category_name=category_name))
+
 # @app.route('/restaurants/JSON/')
 # def restaurantJSON():
 #     restaurants = session.query(Restaurant).all()
@@ -110,39 +111,3 @@ if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host = '0.0.0.0', port = 5000)
-
-
-
-# @app.route('/restaurant/new/', methods=['GET', 'POST'])
-# def newRestaurant():
-#     if request.method == 'POST':
-#         newRestaurant = Restaurant(name=request.form['name'])
-#         session.add(newRestaurant)
-#         session.commit()
-#         flash("New Restaurant Created")
-#         return redirect(url_for('showRestaurants'))
-#     else:
-#         return render_template('newrestaurant.html')
-#
-# @app.route('/restaurant/<int:restaurant_id>/edit', methods=['GET', 'POST'])
-# def editRestaurant(restaurant_id):
-#     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-#     if request.method == 'POST':
-#         restaurant.name = request.form['name']
-#         session.add(restaurant)
-#         session.commit()
-#         flash("Restaurant Successfully Edited")
-#         return redirect(url_for('showRestaurants'))
-#     else:
-#         return render_template('editrestaurant.html', restaurant=restaurant)
-#
-# @app.route('/restaurant/<int:restaurant_id>/delete', methods=['GET', 'POST'])
-# def deleteRestaurant(restaurant_id):
-#     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-#     if request.method == 'POST':
-#         session.delete(restaurant)
-#         session.commit()
-#         flash("Restaurant Successfully Deleted")
-#         return redirect(url_for('showRestaurants'))
-#     else:
-#         return render_template('deleterestaurant.html', restaurant=restaurant)

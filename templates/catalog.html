@@ -1,24 +1,12 @@
 {% extends "main.html" %}
 
 {% block content %}
-<div class = 'flash'>
-	      {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul>
-    {% for message in messages %}
-        <li> <strong> {{ message }} </strong> </li>
-    {% endfor %}
-    </ul>
-    {% endif %}
-{% endwith %}
-</div>
-
 <div class="categories">
 	<h2>Categories</h2>
 	<ul>
 	{% for category in categories %}
 		<li>
-			<a href = "url_for('showCategory', restaurant_id = restaurant.id)">
+			<a href="{{url_for('showCategory', category_name=category.name)}}">
 				{{category.name}}
 			</a>
 		</li>
@@ -45,7 +33,7 @@
 {% if user %}
 <!-- Add Modal -->
 <div id="edit-instrument" class="modal">
-	<form class="modal-content animate" action="/action_page.php" method="post">
+	<form class="modal-content animate" action="/catalog" method="post">
 		<h2>Add Instrument</h2>
 		<label for="name"><p>Name</p></label>
 		<input class="user-input" type="text" placeholder="Instrument name" name="name" required>
@@ -58,8 +46,10 @@
 			{% block select_category %}
 			{% endblock select_category %}
 		</select>
+		{% block hidden_info %}
+		{% endblock hidden_info %}
 		<div class="button-group">
-			<button type="submit" class="blue-button">Edit</button>
+			<button type="submit" class="blue-button" >Add</button>
 			<button type="button" class="gray-button" onclick="document.getElementById('edit-instrument').style.display='none'">Cancel</button>
 		</div>
 	</form>

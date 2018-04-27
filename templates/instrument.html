@@ -14,21 +14,26 @@
 </div>
 
 <div class="description">
-	<h2>{{instrument.name}}</h2>
+	<div class="title-button">
+		<h2>{{instrument.name}}</h2>
+		{% if user == instrument.user_id %}
+		<div class="button-group">
+			<button class="blue-button" onclick="document.getElementById('edit-instrument').style.display='block'">Edit</button>
+			<button class="red-button" onclick="document.getElementById('delete-instrument').style.display='block'">Delete</button>
+		</div>
+		{% endif %}
+	</div>
 	<p>{{instrument.description}}</p>
-	{% if user %}
-	<button class="blue-button" onclick="document.getElementById('edit-instrument').style.display='block'">Edit</button>
-	<button class="red-button" onclick="document.getElementById('delete-instrument').style.display='block'">Delete</button>
-	{% endif %}
+	<a href = "{{url_for('showCategory', category_name=instrument.category_name)}}">Back to {{instrument.category_name}}</a>
 </div>
 
-{% if user %}
+{% if user == instrument.user_id %}
 <!-- Edit Modal -->
 <div id="edit-instrument" class="modal">
-	<form class="modal-content animate" action="/action_page.php" method="post">
+	<form class="modal-content animate" action="{{url_for('router', category_name=instrument.category_name, instrument_name=instrument.name)}}" method="post">
 		<h2>Edit Instrument</h2>
 		<label for="name"><p>Name</p></label>
-		<input class="user-input" type="text" placeholder="Instrument name" name="name" required>
+		<input class="user-input" type="text" placeholder="Instrument name" name="name" value="{{instrument.name}}" required>
 
 		<label for="description"><p>Description</p></label>
 		<textarea class="user-input" name="description" rows="5" required>{{instrument.description}}</textarea>
@@ -37,12 +42,13 @@
 		<select class="user-input" name="category_name">
 		{% for category in categories %}
 			{% if category.name == instrument.category_name %}
-			<option value="{{category}}" selected>{{category.name}}</option>
+			<option value="{{category.name}}" selected>{{category.name}}</option>
 			{% else %}
-			<option value="{{category}}">{{category.name}}</option>
+			<option value="{{category.name}}">{{category.name}}</option>
 			{% endif %}
 		{% endfor %}
 		</select>
+		<input type="hidden" name="method" value='patch'>
 		<div class="button-group">
 			<button type="submit" class="blue-button">Edit</button>
 			<button type="button" class="gray-button" onclick="document.getElementById('edit-instrument').style.display='none'">Cancel</button>
@@ -52,8 +58,9 @@
 
 <!-- Delete Modal -->
 <div id="delete-instrument" class="modal">
-	<form class="modal-content animate" action="/action_page.php" method="post">
+	<form class="modal-content animate" action="{{url_for('router', category_name=instrument.category_name, instrument_name=instrument.name)}}" method="post">
 		<h3>Are you sure you want to delete {{instrument.name}}?</h3>
+		<input type="hidden" name="method" value='delete'>
 		<button type="submit" class="red-button">Delete</button>
 		<button type="button" class="gray-button" onclick="document.getElementById('delete-instrument').style.display='none'">Cancel</button>
 	</form>

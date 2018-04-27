@@ -138,8 +138,21 @@ li a:hover {
     vertical-align: top;
 }
 
+.description {
+    width: 100%;
+}
+
+.description .title-button {
+    display: flex;
+    justify-content: space-between;
+}
+
 .description p {
     margin: 0.5em 0 1.25em 0;
+}
+
+.description a {
+    font-weight: 600;
 }
 
 .description .red-button {

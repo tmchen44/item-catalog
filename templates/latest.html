@@ -7,7 +7,7 @@
 {% block subcontent_list %}
 {% for instrument in instruments %}
     <li>
-        <a href = "url_for('showInstrument', instrument_id = instrument.id)">{{instrument.name}}</a>
+        <a href = "{{url_for('showInstrument', category_name=instrument.category_name, instrument_name=instrument.name)}}">{{instrument.name}}</a>
         <span><i>({{instrument.category_name}})</i></span>
     </li>
 {% endfor %}
@@ -15,6 +15,11 @@
 
 {% block select_category %}
 {% for category in categories %}
-    <option value="{{category}}">{{category.name}}</option>
+    <option value="{{category.name}}">{{category.name}}</option>
 {% endfor %}
 {% endblock select_category %}
+
+{% block hidden_info %}
+<input type="hidden" name="method" value='post'>
+<input type="hidden" name="origin" value='latest'>
+{% endblock hidden_info %}
