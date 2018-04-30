@@ -36,6 +36,18 @@ li a:hover {
 }
 
 /*
+ *  Login Page
+ */
+
+/* #signinButton {
+
+} */
+
+/* #facebook-button {
+    height: 40px;
+} */
+
+/*
  *  Navigational Bar
  */
 
@@ -60,14 +72,21 @@ li a:hover {
     margin: 0.5em 0 0.5em 0;
 }
 
+.nav-right span {
+    color: white;
+    position: relative;
+    right: 10px;
+}
+
 .nav-button {
     font-size: 1em;
-    padding: 0.5em 1em 0.65em 1em;
     border-radius: 8px;
-    border: none;
     color: white;
+    border: none;
     text-decoration: none;
     cursor: pointer;
+    height: 38px;
+    padding: 0 1em;
 }
 
 .login {

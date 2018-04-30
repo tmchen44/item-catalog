@@ -1,4 +1,7 @@
 <div class="nav-content">
 	<a class="nav-title" href="{{url_for('showLatest')}}">Instrument Catalog</a>
-	<a class="logout nav-button" href="#">Logout</a>
+	<div class="nav-right">
+		<span>Hello, {{ user.name }}!</span>
+		<button class="logout nav-button" onclick="window.location.href='/logout'">Logout</a>
+	</div>
 </div>

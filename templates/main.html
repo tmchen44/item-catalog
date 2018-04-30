@@ -13,13 +13,11 @@
 </head>
 <body>
 	<nav class="nav-bar">
-		{% block nav %}
 		{% if user %}
 		    {% include 'header_private.html' %}
 		{% else %}
 		    {% include 'header_public.html' %}
 		{% endif %}
-		{% endblock nav %}
 	</nav>
 	<!-- Informational flash messages -->
 	{% with messages = get_flashed_messages(category_filter=['message']) %}

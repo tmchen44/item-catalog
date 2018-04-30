@@ -1,4 +1,7 @@
 <div class="nav-content">
 	<a class="nav-title" href="{{url_for('showLatest')}}">Instrument Catalog</a>
-	<a class="login nav-button" href="#">Login</a>
+	<form action="/login">
+		<input type="hidden" name="origin_url" value={{CURRENT_URL}}>
+		<button class="login nav-button" formmethod="get" type="submit">Login</a>
+	</form>
 </div>

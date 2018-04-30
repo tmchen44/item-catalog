@@ -4,7 +4,7 @@
 <div class="description">
 	<div class="title-button">
 		<h2>{{instrument.name}}</h2>
-		{% if user == instrument.user_id %}
+		{% if user.id == instrument.user_id %}
 		<div class="button-group">
 			<button class="blue-button" onclick="document.getElementById('edit-instrument').style.display='block'">Edit</button>
 			<button class="red-button" onclick="document.getElementById('delete-instrument').style.display='block'">Delete</button>
@@ -15,7 +15,7 @@
 	<a href = "{{url_for('showCategory', category_name=instrument.category_name)}}">Back to {{instrument.category_name}}</a>
 </div>
 
-{% if user == instrument.user_id %}
+{% if user.id == instrument.user_id %}
 <!-- Edit Modal -->
 <div id="edit-instrument" class="modal">
 	<form class="modal-content animate" action="{{url_for('router', category_name=instrument.category_name, instrument_name=instrument.name)}}" method="post">
@@ -36,6 +36,7 @@
 			{% endif %}
 		{% endfor %}
 		</select>
+		<input type="hidden" name="state" value={{STATE}}>
 		<input type="hidden" name="method" value='patch'>
 		<div class="button-group">
 			<button type="submit" class="blue-button">Edit</button>
@@ -48,6 +49,7 @@
 <div id="delete-instrument" class="modal">
 	<form class="modal-content animate" action="{{url_for('router', category_name=instrument.category_name, instrument_name=instrument.name)}}" method="post">
 		<h3>Are you sure you want to delete {{instrument.name}}?</h3>
+		<input type="hidden" name="state" value={{STATE}}>
 		<input type="hidden" name="method" value='delete'>
 		<button type="submit" class="red-button">Delete</button>
 		<button type="button" class="gray-button" onclick="document.getElementById('delete-instrument').style.display='none'">Cancel</button>
