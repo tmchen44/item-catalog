@@ -1,19 +1,22 @@
+import string
+import random
+import json
+import requests
+from oauth2client import client
+
 # Import database modules
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Instrument, User, database_info
 import sqlalchemy.engine.url
 from sqlalchemy.exc import IntegrityError
-import string
-import random
-import sys
-import json
-import requests
 
 # Import Flask
 from flask import (Flask, render_template, request, redirect, url_for, flash,
                    jsonify, make_response)
 from flask import session as login_session
+
+# Initialize Flask app
 app = Flask(__name__)
 
 # Connect with database as a session
@@ -87,7 +90,47 @@ def showInstrument(category_name, instrument_name):
 #  Login code
 ##########################
 
-# Facebook connect
+# Google login
+@app.route('/gconnect', methods=['POST'])
+def gconnect():
+    # Validate state token sent by client through URL of POST request
+    if (request.args.get('state') != login_session['state']) or (not
+            request.headers.get('X-Requested-With')):
+        response = make_response(json.dumps('Invalid state parameter.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Obtain one-time code from client request body
+    auth_code = request.data.decode('utf-8')
+
+    # Exchange one-time code for access token, refresh token, and ID token
+    CLIENT_SECRET_FILE = 'client_secret.json'
+    credentials = client.credentials_from_clientsecrets_and_code(
+        CLIENT_SECRET_FILE,
+        ['profile', 'email'],
+        auth_code)
+
+    # Store user info and the access token in the session
+    login_session['access_token'] = credentials.access_token
+    login_session['gplus_id'] = credentials.id_token['sub']
+    login_session['email'] = credentials.id_token['email']
+    login_session['provider'] = 'google'
+
+    # Retrieve additional user info through Google API call
+    userinfo_url = "https://www.googleapis.com/oauth2/v2/userinfo"
+    params = {'access_token': credentials.access_token, 'alt': 'json'}
+    info = requests.get(userinfo_url, params=params).json()
+    login_session['username'] = info['name']
+
+    # Check if user exists; if not, create user
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+    flash("Successfully logged in")
+    return json.dumps({'success': True}), 200, {'contentType': 'application/json'}
+
+
+# Facebook login
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
     # Check state token
@@ -102,7 +145,6 @@ def fbconnect():
     app_info = json.loads(open('fb_client_secrets.json', 'r').read())
     app_id = app_info['web']['app_id']
     app_secret = app_info['web']['app_secret']
-
     exchange_url = 'https://graph.facebook.com/oauth/access_token?'
     exchange_url += 'grant_type=fb_exchange_token&client_id={}&'.format(app_id)
     exchange_url += 'client_secret={}&fb_exchange_token={}&'.format(app_secret,
@@ -115,12 +157,12 @@ def fbconnect():
     info_url = 'https://graph.facebook.com/v2.12/me?'
     info_url += 'access_token={}&fields=name,id,email'.format(long_token)
     info = requests.get(info_url).json()
+
+    # Store info in session
     login_session['provider'] = 'facebook'
     login_session['username'] = info.get('name')
     login_session['email'] = info.get('email')
     login_session['facebook_id'] = info.get('id')
-
-    # Store long-lived token in login_session to logout later
     login_session['access_token'] = long_token
 
     # Check if user exists; if not, create user
@@ -128,7 +170,6 @@ def fbconnect():
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
-
     flash("Successfully logged in")
     return json.dumps({'success': True}), 200, {'contentType': 'application/json'}
 
@@ -137,7 +178,6 @@ def fbconnect():
 def disconnect():
     if 'provider' in login_session:
         if login_session.get('provider') == 'google':
-            gdisconnect()
             login_session.pop('gplus_id')
         if login_session.get('provider') == 'facebook':
             login_session.pop('facebook_id')
@@ -305,4 +345,4 @@ if __name__ == '__main__':
                 string.ascii_uppercase + string.ascii_lowercase +
                 string.digits) for _ in range(64))
     app.debug = True
-    app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
+    app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
