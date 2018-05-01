@@ -22,12 +22,14 @@ function signInCallback(authResult) {
             processData: false,
             data: authResult['code'],
             success: function(result) {
+                // Successful response from server
                 if (result) {
                     setTimeout(function() {
                         window.location.href = flaskData.next;
                     }, 1500);
                     $('#feedback').text('Google login success!');
                     $('#feedback').css('visibility', 'visible');
+                // Authentication error from Google
                 } else if (authResult['error']) {
                     setTimeout(function() {
                         window.location.href = flaskData.home;
@@ -35,6 +37,7 @@ function signInCallback(authResult) {
                     $('#feedback').text('Authentication error. Redirecting to home page...');
                     $('#feedback').css('visibility', 'visible');
                     console.log('There was an error: ' + authResult['error']);
+                // Other error
                 } else {
                     setTimeout(function() {
                         window.location.href = flaskData.home;
@@ -44,6 +47,7 @@ function signInCallback(authResult) {
                 }
             }
         });
+    // No code received from Google
     } else {
         setTimeout(function() {
             window.location.href = flaskData.home;
@@ -102,12 +106,14 @@ function sendTokenToServer(response) {
         data: accessToken,
         contentType: 'application/octet-stream; charset=UTF-8'
     }).done(function(result) {
+        // Successful response from server
         setTimeout(function() {
             window.location.href = flaskData.next;
         }, 1500);
         $('#feedback').text('Facebook login success!');
         $('#feedback').css('visibility', 'visible');
     }).fail(function() {
+        // Error occured in backend
         setTimeout(function() {
             window.location.href = flaskData.home;
         }, 1500);

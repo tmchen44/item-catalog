@@ -28,7 +28,7 @@ session = DBSession()
 
 
 #####################
-#  Retrieve pages
+#  Read
 #####################
 
 @app.route('/login')
@@ -88,9 +88,9 @@ def showInstrument(category_name, instrument_name):
                                                ))
 
 
-##########################
-#  Login code
-##########################
+#######################
+#  Login / Logout
+#######################
 
 # Google login
 @app.route('/gconnect', methods=['POST'])
@@ -155,7 +155,7 @@ def fbconnect():
     exchange_url += 'redirect_uri=' + url_for('showLogin')
     exchange_result = requests.get(exchange_url).json()
 
-    # Use long-lived token to get user info from API
+    # Get user info with call to Facebook's Graph API
     long_token = exchange_result.get('access_token')
     info_url = 'https://graph.facebook.com/v2.12/me?'
     info_url += 'access_token={}&fields=name,id,email'.format(long_token)
@@ -178,6 +178,7 @@ def fbconnect():
             200, {'contentType': 'application/json'})
 
 
+# Log out from web app
 @app.route('/logout')
 def disconnect():
     if 'provider' in login_session:
@@ -196,9 +197,9 @@ def disconnect():
         return redirect(url_for('showLatest'))
 
 
-###################
-#  Edit pages
-###################
+##############################
+#  Create / Update / Delete
+##############################
 
 @app.route('/catalog', methods=['POST'])
 def newInstrument():
@@ -208,7 +209,7 @@ def newInstrument():
                 json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    # Check user authorization
+    # Check user authorization to add an instrument
     if not login_session.get('user_id'):
         flash("You must be logged in before adding an instrument.")
         return redirect(url_for('showLatest'))
@@ -219,6 +220,7 @@ def newInstrument():
     session.add(newInstrument)
     try:
         session.commit()
+    # Check for duplicate instruments in a category
     except IntegrityError:
         session.rollback()
         message = 'The {} category already has an instrument named {}. \
@@ -235,6 +237,7 @@ def newInstrument():
                 'showCategory', category_name=request.form['category_name']))
 
 
+# Routes the POST request to either edit or delete
 @app.route('/catalog/<category_name>/<instrument_name>', methods=['POST'])
 def router(category_name, instrument_name):
     # Check state token
@@ -243,7 +246,7 @@ def router(category_name, instrument_name):
                 json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    # Check user authorization
+    # Check user authorization for update / delete operations
     instrument = session.query(Instrument).filter_by(
         name=instrument_name, category_name=category_name).one()
     if instrument.user_id != login_session['user_id']:
@@ -262,6 +265,7 @@ def editInstrument(instrument):
     session.add(instrument)
     try:
         session.commit()
+    # Check for duplicate instruments in a category
     except IntegrityError:
         session.rollback()
         flash('The {} category already has an instrument named {}. \
@@ -289,6 +293,7 @@ def deleteInstrument(instrument):
 #  JSON endpoints
 #####################
 
+# Download entire catalog
 @app.route('/catalog.json')
 def catalogJSON():
     instruments = session.query(Instrument).order_by(
@@ -296,6 +301,7 @@ def catalogJSON():
     return jsonify([i.serialize for i in instruments])
 
 
+# Download entire category
 @app.route('/catalog/<category_name>.json')
 def categoryJSON(category_name):
     instruments = session.query(Instrument).filter_by(
@@ -303,6 +309,7 @@ def categoryJSON(category_name):
     return jsonify([i.serialize for i in instruments])
 
 
+# Download specific instrument
 @app.route('/catalog/<category_name>/<instrument_name>.json')
 def instrumentJSON(category_name, instrument_name):
     instrument = session.query(Instrument).filter_by(
@@ -315,6 +322,7 @@ def instrumentJSON(category_name, instrument_name):
 #  Helper functions
 ######################
 
+# Create a user with name and email
 def createUser(login_session):
     newUser = User(name=login_session['username'],
                    email=login_session['email'])
@@ -335,7 +343,7 @@ def getUserID(email):
 def getUser():
     if login_session.get('user_id'):
         return session.query(User).filter_by(
-                                        id=login_session.get('user_id')).one()
+            id=login_session.get('user_id')).one()
     else:
         return None
 
