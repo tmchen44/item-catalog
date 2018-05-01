@@ -8,12 +8,15 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = 'user_table'
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
-    instrument = relationship("Instrument", cascade="all, delete-orphan", backref="user_table")
+    instrument = relationship("Instrument",
+                              cascade="all, delete-orphan",
+                              backref="user_table")
 
     @property
     def serialize(self):
@@ -23,16 +26,20 @@ class User(Base):
             'email': self.email
         }
 
+
 class Category(Base):
     __tablename__ = 'category'
     name = Column(String(80), primary_key=True)
-    instrument = relationship("Instrument", cascade="all, delete-orphan", backref="category")
+    instrument = relationship("Instrument",
+                              cascade="all, delete-orphan",
+                              backref="category")
 
     @property
     def serialize(self):
         return {
             'name': self.name
         }
+
 
 class Instrument(Base):
     __tablename__ = 'instrument'
@@ -41,8 +48,8 @@ class Instrument(Base):
     description = Column(String(250))
     category_name = Column(String(80), ForeignKey('category.name'))
     user_id = Column(Integer, ForeignKey('user_table.id'))
-    __table_args__ = (UniqueConstraint('category_name', 'name',
-                                        name='category_name_uc'),)
+    __table_args__ = (UniqueConstraint(
+                            'category_name', 'name', name='category_name_uc'),)
 
     @property
     def serialize(self):
@@ -52,6 +59,7 @@ class Instrument(Base):
             'description': self.description,
             'category': self.category_name
         }
+
 
 database_info = {
     'drivername': 'postgresql',

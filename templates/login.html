@@ -5,7 +5,6 @@
     <meta id="js-data" data-state="{{STATE}}" data-next="{{NEXT}}" data-home="{{ url_for('showLatest') }}">
     <link rel=stylesheet type=text/css href="{{url_for('static', filename='styles.css')}}">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
     <script>
         function start() {
             gapi.load('auth2', function() {
@@ -39,10 +38,11 @@
                 });
             }
         </script>
-        <script src="https://apis.google.com/js/client:platform.js?onload=renderButton" async defer></script>
         <!-- Facebook sign-in -->
         <div class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="login_with" data-show-faces="false" data-auto-logout-link="false" data-use-continue-as="false" scope="public_profile,email" onlogin="checkLoginState()"></div>
     </div>
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" defer></script>
+    <script src="https://apis.google.com/js/client:platform.js?onload=renderButton" defer></script>
     <script src="{{url_for('static', filename='login.js')}}" defer></script>
 </body>
 </html>

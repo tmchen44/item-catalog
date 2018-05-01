@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Instrument, User, database_info
 import sqlalchemy.engine.url
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 
 # Import Flask
 from flask import (Flask, render_template, request, redirect, url_for, flash,
@@ -49,11 +50,11 @@ def showLatest():
     categories = session.query(Category).all()
     latest = session.query(Instrument).order_by(Instrument.id.desc()).limit(10)
     return render_template('latest.html',
-                            categories=categories,
-                            instruments=latest,
-                            user=getUser(),
-                            STATE=login_session.get('state'),
-                            CURRENT_URL=url_for('showLatest'))
+                           categories=categories,
+                           instruments=latest,
+                           user=getUser(),
+                           STATE=login_session.get('state'),
+                           CURRENT_URL=url_for('showLatest'))
 
 
 @app.route('/catalog/<category_name>')
@@ -62,28 +63,29 @@ def showCategory(category_name):
     instruments = session.query(Instrument).filter_by(
                                         category_name=category_name).all()
     return render_template('category.html',
-                            categories=categories,
-                            category_name=category_name,
-                            instruments=instruments,
-                            user=getUser(),
-                            STATE=login_session.get('state'),
-                            CURRENT_URL=url_for('showCategory',
-                                                category_name=category_name))
+                           categories=categories,
+                           category_name=category_name,
+                           instruments=instruments,
+                           user=getUser(),
+                           STATE=login_session.get('state'),
+                           CURRENT_URL=url_for('showCategory',
+                                               category_name=category_name))
 
 
 @app.route('/catalog/<category_name>/<instrument_name>')
 def showInstrument(category_name, instrument_name):
     categories = session.query(Category).all()
-    instrument = session.query(Instrument).filter_by(name=instrument_name,
-                                        category_name=category_name).one()
+    instrument = session.query(Instrument).filter_by(
+        name=instrument_name, category_name=category_name).one()
     return render_template('instrument.html',
-                            instrument=instrument,
-                            categories=categories,
-                            user=getUser(),
-                            STATE=login_session.get('state'),
-                            CURRENT_URL=url_for('showInstrument',
-                                            category_name=category_name,
-                                            instrument_name=instrument_name))
+                           instrument=instrument,
+                           categories=categories,
+                           user=getUser(),
+                           STATE=login_session.get('state'),
+                           CURRENT_URL=url_for('showInstrument',
+                                               category_name=category_name,
+                                               instrument_name=instrument_name
+                                               ))
 
 
 ##########################
@@ -94,7 +96,7 @@ def showInstrument(category_name, instrument_name):
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token sent by client through URL of POST request
-    if (request.args.get('state') != login_session['state']) or (not
+    if (request.args.get('state') != login_session['state'] or not
             request.headers.get('X-Requested-With')):
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -127,7 +129,8 @@ def gconnect():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
     flash("Successfully logged in")
-    return json.dumps({'success': True}), 200, {'contentType': 'application/json'}
+    return (json.dumps({'success': True}),
+            200, {'contentType': 'application/json'})
 
 
 # Facebook login
@@ -147,8 +150,8 @@ def fbconnect():
     app_secret = app_info['web']['app_secret']
     exchange_url = 'https://graph.facebook.com/oauth/access_token?'
     exchange_url += 'grant_type=fb_exchange_token&client_id={}&'.format(app_id)
-    exchange_url += 'client_secret={}&fb_exchange_token={}&'.format(app_secret,
-                                                          short_token)
+    exchange_url += 'client_secret={}&fb_exchange_token={}&'.format(
+        app_secret, short_token)
     exchange_url += 'redirect_uri=' + url_for('showLogin')
     exchange_result = requests.get(exchange_url).json()
 
@@ -171,7 +174,8 @@ def fbconnect():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
     flash("Successfully logged in")
-    return json.dumps({'success': True}), 200, {'contentType': 'application/json'}
+    return (json.dumps({'success': True}),
+            200, {'contentType': 'application/json'})
 
 
 @app.route('/logout')
@@ -209,9 +213,9 @@ def newInstrument():
         flash("You must be logged in before adding an instrument.")
         return redirect(url_for('showLatest'))
     newInstrument = Instrument(name=request.form['name'],
-                         description=request.form['description'],
-                         category_name=request.form['category_name'],
-                         user_id=login_session.get('user_id'))
+                               description=request.form['description'],
+                               category_name=request.form['category_name'],
+                               user_id=login_session.get('user_id'))
     session.add(newInstrument)
     try:
         session.commit()
@@ -227,8 +231,8 @@ def newInstrument():
         if request.form['origin'] == 'latest':
             return redirect(url_for('showLatest'))
         else:
-            return redirect(url_for('showCategory',
-                                category_name=request.form['category_name']))
+            return redirect(url_for(
+                'showCategory', category_name=request.form['category_name']))
 
 
 @app.route('/catalog/<category_name>/<instrument_name>', methods=['POST'])
@@ -240,8 +244,8 @@ def router(category_name, instrument_name):
         response.headers['Content-Type'] = 'application/json'
         return response
     # Check user authorization
-    instrument = session.query(Instrument).filter_by(name=instrument_name,
-                                        category_name=category_name).one()
+    instrument = session.query(Instrument).filter_by(
+        name=instrument_name, category_name=category_name).one()
     if instrument.user_id != login_session['user_id']:
         flash("You don't have permission to edit that instrument.")
         return redirect(url_for('showLatest'))
@@ -278,7 +282,7 @@ def deleteInstrument(instrument):
     session.commit()
     flash('Instrument Deleted')
     return redirect(url_for('showCategory',
-                                category_name=instrument.category_name))
+                            category_name=instrument.category_name))
 
 
 #####################
@@ -324,7 +328,7 @@ def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
-    except:
+    except NoResultFound:
         return None
 
 
@@ -344,5 +348,4 @@ if __name__ == '__main__':
     app.secret_key = ''.join(random.SystemRandom().choice(
                 string.ascii_uppercase + string.ascii_lowercase +
                 string.digits) for _ in range(64))
-    app.debug = True
     app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))

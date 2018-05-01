@@ -239,8 +239,6 @@ li a:hover {
 }
 
 #add-button {
-    border-color: #00a1ff;
-    color: #00a1ff;
     padding: 0.3em 1em 0.3em 0.8em;
     position: relative;
     left: 1em;
