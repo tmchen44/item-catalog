@@ -65,9 +65,9 @@ database_info = {
     'drivername': 'postgresql',
     'host': 'localhost',
     'port': '5432',
-    'username': 'vagrant',
-    'password': 'vagrant',
-    'database': 'vagrant',
+    'username': 'catalog',
+    'password': 'catalog',
+    'database': 'catalog'
 }
 
 engine = create_engine(URL(**database_info))
